@@ -1,23 +1,65 @@
-import logo from './logo.svg';
-import './App.css';
+import pic from '../src/images/pic.png'
+import React ,{useState,useEffect} from 'react';
+import Signin, { isAutheticated } from './Signin';
+import Signup from './signup';
+import {useHistory} from 'react-router-dom'
+import axios from 'axios';
+import { API } from './Backend';
+export const authContex = React.createContext();
+
 
 function App() {
+  const history = useHistory();
+const [state, setstate] = useState(false);
+const [uname, setuname] = useState('ajith');
+  const user=isAutheticated();
+useEffect(() => {
+  const checkAuth=()=>{
+   
+  
+    if(user){
+      setstate(true)
+    }else{
+      setstate(false)
+    }
+    
+  }
+  checkAuth()
+}, []);
+
+
+const signout=()=>{
+  axios.get(`${API}/signout`,{ 
+    withCredentials: true,
+  })
+  .then(function (response) {
+    history.push('/signin')
+    localStorage.removeItem("jwt");
+
+    console.log(response);
+  })
+  .catch(function (error) {
+    
+    console.log(error);
+  })
+}
+
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <img className="head_image" src={pic} alt=""/>
+      <h1>Full Stack Authentication</h1>
+      <authContex.Provider value={uname}>
+        {
+          state?
+          // <h1>Signed In</h1>
+          <button className="btn_logout" onClick={signout}>Logout</button>
+          :<Signin/>
+
+        }
+      </authContex.Provider>
+   
     </div>
   );
 }
